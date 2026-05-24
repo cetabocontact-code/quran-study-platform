@@ -188,6 +188,12 @@ function RootExplorerContent() {
       {/* ── Live results ─────────────────────────────────────────────────── */}
       {results && (
         <div className="space-y-4">
+          {/* Fallback notice — shown only when no exact matches exist */}
+          {results.pagination?.exactOnly === false && (
+            <div className="px-4 py-2.5 rounded-xl border border-amber-900/40 bg-amber-950/20 text-xs text-amber-400/80">
+              لم يُعثر على مطابقات دقيقة — تعرض النتائج المطابقات الصرفية الأقرب.
+            </div>
+          )}
           <div className="p-5 border border-zinc-800 rounded-2xl bg-zinc-900/30 flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-zinc-100">
@@ -197,7 +203,7 @@ function RootExplorerContent() {
                 <span className="text-teal-400 font-medium">{results.pagination?.totalResults ?? 0}</span> نتيجة في{" "}
                 <span className="text-teal-400 font-medium">{Object.keys(groupedBySura).length}</span> سورة
                 {(results.pagination?.totalResults ?? 0) > 100 && (
-                  <span className="text-zinc-500"> — يعرض أول ١٠٠</span>
+                  <span className="text-zinc-500"> — يعرض أول ١٠٠ مطابقة دقيقة</span>
                 )}
               </p>
             </div>
@@ -231,7 +237,17 @@ function RootExplorerContent() {
                     {shown.map((item: any, i: number) => (
                       <div key={i} className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/80">
                         <p className="font-amiri text-2xl leading-loose text-zinc-100">{item.uthmani}</p>
-                        <p className="text-xs text-zinc-500 mt-2">— آية {item.aya_id_display}، سورة {sura}</p>
+                        <div className="mt-2 flex items-center gap-2 text-xs text-zinc-500 flex-wrap">
+                          <span>— آية {item.aya_id_display}، سورة {sura}</span>
+                          {item.matchedTokens?.[0] && (
+                            <span
+                              title="الكلمة المطابقة في هذه الآية"
+                              className="px-1.5 py-0.5 rounded bg-teal-900/40 text-teal-300 border border-teal-800/40 font-amiri text-sm"
+                            >
+                              {item.matchedTokens[0]}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     ))}
                     {!expanded && verses.length > 2 && (
@@ -309,6 +325,7 @@ function RootExplorerContent() {
                       <p className="text-xs text-zinc-600 mt-1">— آية {v.aya}، سورة {s.name}</p>
                     </div>
                   ))}
+
                 </div>
               ))}
             </div>

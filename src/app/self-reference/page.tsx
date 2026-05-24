@@ -123,10 +123,11 @@ function SelfReferenceContent() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Derived computations ───────────────────────────────────────────────────
+  // API now pre-filters to exact matches; keep the belt-and-suspenders
+  // filter here as a safety net in case of a cold-cache fallback response.
   const listA: any[] = resultsA?.results ?? [];
   const listB: any[] = resultsB?.results ?? [];
 
-  // Prefer exact matches (word literally in verse) for sharper analysis
   const exactA = listA.filter((r: any) => r.matchType === "exact");
   const exactB = listB.filter((r: any) => r.matchType === "exact");
   const useA   = exactA.length > 0 ? exactA : listA;
