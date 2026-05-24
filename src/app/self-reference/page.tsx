@@ -56,12 +56,18 @@ function SelfReferenceContent() {
     else handleSearch(DEFAULT_CONCEPT, true);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Prefer exact matches for the map — they're the verses where the word
+  // literally appears, not just contextual/morphological neighbours.
+  const allResultsList: any[] = results?.results ?? [];
+  const exactMatches = allResultsList.filter((r: any) => r.matchType === "exact");
+  const mapResults = exactMatches.length > 0 ? exactMatches : allResultsList;
+
   const groupedBySura: Record<string, any[]> =
-    results?.results?.reduce((acc: Record<string, any[]>, item: any) => {
+    mapResults.reduce((acc: Record<string, any[]>, item: any) => {
       if (!acc[item.sura_name]) acc[item.sura_name] = [];
       acc[item.sura_name].push(item);
       return acc;
-    }, {}) ?? {};
+    }, {});
 
   const topSuras = Object.entries(groupedBySura)
     .sort(([, a], [, b]) => b.length - a.length)
@@ -183,6 +189,26 @@ function SelfReferenceContent() {
                   <h3 className="font-bold text-zinc-100">خريطة الإحالات الدلالية</h3>
                   <span className="text-xs text-zinc-500 mr-auto">أبرز {topSuras.length} سور حسب التكرار</span>
                 </div>
+                {/* Explanation */}
+                <div className="px-5 py-3 bg-zinc-950/40 border-b border-zinc-800/50 text-xs text-zinc-500 leading-relaxed space-y-1">
+                  <p>
+                    كل مفهوم له <span className="text-zinc-300 font-medium">بصمة توزيع خاصة به</span> عبر سور القرآن.
+                    الخريطة تكشف في أي السور يتركّز هذا المفهوم أكثر من غيره.
+                  </p>
+                  <p>
+                    جرّب بحثاً آخر لترى كيف تتغير البصمة كلياً — <span className="text-teal-400/80">ن و ر</span> مثلاً يتركّز في سور مختلفة عن <span className="text-teal-400/80">ر ح م</span>.
+                    الكلمة المُلوَّنة في كل آية هي الشكل الصرفي الذي عثر عليه المحرك.
+                  </p>
+                </div>
+                {/* Exact-match filter notice */}
+                {exactMatches.length > 0 && exactMatches.length < allResultsList.length && (
+                  <div className="px-5 py-2 bg-teal-950/20 border-b border-teal-900/30 text-xs text-teal-400/80 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-teal-500 shrink-0" />
+                    <span>
+                      تعرض الخريطة <span className="font-medium text-teal-300">{exactMatches.length} مطابقة دقيقة</span> من أصل {totalResults.toLocaleString("ar-EG")} نتيجة — الآيات التي تحتوي الكلمة حرفياً.
+                    </span>
+                  </div>
+                )}
                 <div className="p-6 space-y-6">
                   {topSuras.length === 0 && (
                     <p className="text-zinc-500 text-center">لم يتم العثور على نتائج.</p>
@@ -196,8 +222,16 @@ function SelfReferenceContent() {
                         <p className="font-amiri text-xl text-zinc-200 leading-loose">
                           {verses[0].uthmani}
                         </p>
-                        <div className="mt-2 flex items-center gap-3 text-xs text-zinc-500">
-                          <span>آية {verses[0].aya_id_display}</span>
+                        <div className="mt-2 flex items-center gap-3 text-xs text-zinc-500 flex-wrap">
+                          <span>— آية {verses[0].aya_id_display}</span>
+                          {verses[0].matchedTokens?.length > 0 && (
+                            <span
+                              className="px-2 py-0.5 rounded bg-teal-900/50 text-teal-300 border border-teal-800/50 font-amiri text-sm"
+                              title="الكلمة التي طابقها المحرك في هذه الآية"
+                            >
+                              {verses[0].matchedTokens[0]}
+                            </span>
+                          )}
                           {verses.length > 1 && (
                             <span className="text-zinc-600">+ {verses.length - 1} آية أخرى في هذه السورة</span>
                           )}

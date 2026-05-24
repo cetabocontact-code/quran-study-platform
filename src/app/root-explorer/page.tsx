@@ -230,8 +230,8 @@ function RootExplorerContent() {
                   <div className="px-4 pb-4 space-y-3">
                     {shown.map((item: any, i: number) => (
                       <div key={i} className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/80">
-                        <p className="text-xs text-zinc-500 mb-2">آية {item.aya_id_display}</p>
                         <p className="font-amiri text-2xl leading-loose text-zinc-100">{item.uthmani}</p>
+                        <p className="text-xs text-zinc-500 mt-2">— آية {item.aya_id_display}، سورة {sura}</p>
                       </div>
                     ))}
                     {!expanded && verses.length > 2 && (
@@ -305,8 +305,8 @@ function RootExplorerContent() {
                   </div>
                   {s.verses.map((v) => (
                     <div key={v.aya} className="px-4 py-3 border-t border-zinc-800/50">
-                      <p className="text-xs text-zinc-600 mb-1">آية {v.aya}</p>
                       <p className="font-amiri text-xl leading-loose text-zinc-200">{v.text}</p>
+                      <p className="text-xs text-zinc-600 mt-1">— آية {v.aya}، سورة {s.name}</p>
                     </div>
                   ))}
                 </div>
