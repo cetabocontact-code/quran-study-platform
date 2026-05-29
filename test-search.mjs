@@ -1,25 +1,26 @@
-import { loadQuranData, loadMorphology, loadWordMap, search } from 'quran-search-engine';
-import fs from 'fs';
+import { loadQuranData, loadMorphology, loadWordMap, search, removeTashkeel } from 'quran-search-engine';
 
 async function test() {
   console.log("Loading data...");
   const quranData = await loadQuranData();
   const morphologyMap = await loadMorphology();
   const wordMap = await loadWordMap();
-  
-  const queries = ["حمار", "ح م ر", "ر ح م", "ع ق ل", "ن و ر", "س ل م", "ق ل ب", "ن ف س", "ك ت ب", "ح ك م", "ش ك ر"];
-  const results = {};
+  console.log("Data loaded.");
+
+  const queries = ["حمار", "حِمَار", "ر ح م", "ن و ر", "ع ق ل", "ك ت ب", "ق ل ب", "ن ف س", "ح ك م", "ش ك ر", "س ل م"];
   
   for (const q of queries) {
-    console.log("Searching:", q);
-    const result = search(q, { quranData, morphologyMap, wordMap }, { lemma: true, root: true, fuzzy: false }, { page: 1, limit: 3 });
-    results[q] = {
-      totalMatches: result.pagination.totalResults,
-      topVerses: result.results.map(d => ({ text: d.standard, sura: d.sura_name, aya: d.aya_id_display }))
-    };
+    const normalized = removeTashkeel(q);
+    const result = search(normalized, { quranData, morphologyMap, wordMap }, { lemma: true, root: true, fuzzy: false }, { page: 1, limit: 5 });
+    const total = result.pagination?.totalResults ?? 0;
+    const topVerse = result.results?.[0];
+    console.log(`\n🔍 "${q}" → normalized: "${normalized}" → ${total} results`);
+    if (topVerse) {
+      console.log(`   First: ${topVerse.sura_name} ${topVerse.aya_id_display} [${topVerse.matchType}]`);
+    } else {
+      console.log("   ❌ NO RESULTS");
+    }
   }
-  
-  fs.writeFileSync('test-results.json', JSON.stringify(results, null, 2));
-  console.log("Done");
 }
+
 test().catch(console.error);

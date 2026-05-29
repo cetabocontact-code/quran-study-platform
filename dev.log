@@ -1,0 +1,165 @@
+
+> quran-study-platform@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.66:3000
+✓ Ready in 472ms
+
+[Search API] Loading Quran data...
+[Search API] Loaded unknown verses
+[Search API] Inverted index built successfully
+[Search API] Data loaded successfully
+[Search API] Searching for: "نور" (original: "نور")
+[Search API] Found 432 results
+ GET /api/search?q=%D9%86%D9%88%D8%B1 200 in 695ms (next.js: 510ms, application-code: 185ms)
+[Search API] Searching for: "رحمة" (original: "رحمة")
+[Search API] Found 2602 results
+ GET /api/search?q=%D8%B1%D8%AD%D9%85%D8%A9 200 in 39ms (next.js: 3ms, application-code: 36ms)
+[Search API] Searching for: "القلب" (original: "القلب")
+[Search API] Found 157 results
+ GET /api/search?q=%D8%A7%D9%84%D9%82%D9%84%D8%A8 200 in 9ms (next.js: 1851µs, application-code: 7ms)
+[Search API] Searching for: "صلاة" (original: "صلاة")
+[Search API] Found 93 results
+ GET /api/search?q=%D8%B5%D9%84%D8%A7%D8%A9 200 in 10ms (next.js: 2ms, application-code: 8ms)
+[Search API] Searching for: "هدى" (original: "هدى")
+[Search API] Found 268 results
+ GET /api/search?q=%D9%87%D8%AF%D9%89 200 in 11ms (next.js: 2ms, application-code: 9ms)
+[Search API] Searching for: "أكل" (original: "أكل")
+[Search API] Found 21 results
+ GET /api/search?q=%D8%A3%D9%83%D9%84 200 in 6ms (next.js: 1717µs, application-code: 4ms)
+[Search API] Searching for: "ماء" (original: "ماء")
+[Search API] Found 60 results
+ GET /api/search?q=%D9%85%D8%A7%D8%A1 200 in 7ms (next.js: 1825µs, application-code: 5ms)
+[Search API] Searching for: "رسول" (original: "رسول")
+[Search API] Found 429 results
+ GET /api/search?q=%D8%B1%D8%B3%D9%88%D9%84 200 in 13ms (next.js: 1868µs, application-code: 11ms)
+[Search API] Searching for: "آية" (original: "آية")
+[Search API] Found 353 results
+ GET /api/search?q=%D8%A2%D9%8A%D8%A9 200 in 12ms (next.js: 1802µs, application-code: 10ms)
+[Search API] Searching for: "نور" (original: "نور")
+[Search API] Found 432 results
+ GET /api/search?q=%D9%86%D9%88%D8%B1 200 in 13ms (next.js: 1692µs, application-code: 11ms)
+[Search API] Searching for: "رحمة" (original: "رحمة")
+[Search API] Found 2602 results
+ GET /api/search?q=%D8%B1%D8%AD%D9%85%D8%A9 200 in 32ms (next.js: 1484µs, application-code: 30ms)
+[Search API] Searching for: "صلاة" (original: "صلاة")
+[Search API] Found 93 results
+ GET /api/search?q=%D8%B5%D9%84%D8%A7%D8%A9 200 in 7ms (next.js: 1552µs, application-code: 5ms)
+[Search API] Searching for: "هدى" (original: "هدى")
+[Search API] Found 268 results
+ GET /api/search?q=%D9%87%D8%AF%D9%89 200 in 9ms (next.js: 1548µs, application-code: 8ms)
+[Search API] Searching for: "رسول" (original: "رسول")
+[Search API] Found 429 results
+ GET /api/search?q=%D8%B1%D8%B3%D9%88%D9%84 200 in 9ms (next.js: 1643µs, application-code: 8ms)
+[Search API] Searching for: "قرآن" (original: "قرآن")
+[Search API] Found 69 results
+ GET /api/search?q=%D9%82%D8%B1%D8%A2%D9%86 200 in 6ms (next.js: 2ms, application-code: 4ms)
+[Search API] Searching for: "إيمان" (original: "إيمان")
+[Search API] Found 58 results
+ GET /api/search?q=%D8%A5%D9%8A%D9%85%D8%A7%D9%86 200 in 5ms (next.js: 1271µs, application-code: 4ms)
+[Search API] Searching for: "جنة" (original: "جنة")
+[Search API] Found 196 results
+ GET /api/search?q=%D8%AC%D9%86%D8%A9 200 in 7ms (next.js: 1173µs, application-code: 6ms)
+[Search API] Searching for: "نار" (original: "نار")
+[Search API] Found 410 results
+ GET /api/search?q=%D9%86%D8%A7%D8%B1 200 in 15ms (next.js: 2ms, application-code: 13ms)
+[Search API] Searching for: "ظلم" (original: "ظلم")
+[Search API] Found 290 results
+ GET /api/search?q=%D8%B8%D9%84%D9%85 200 in 10ms (next.js: 1870µs, application-code: 8ms)
+[Search API] Searching for: "أكل" (original: "أكل")
+[Search API] Found 21 results
+ GET /api/search?q=%D8%A3%D9%83%D9%84 200 in 4ms (next.js: 1235µs, application-code: 3ms)
+[Search API] Searching for: "ماء" (original: "ماء")
+[Search API] Found 60 results
+ GET /api/search?q=%D9%85%D8%A7%D8%A1 200 in 6ms (next.js: 1379µs, application-code: 5ms)
+[Search API] Searching for: "آية" (original: "آية")
+[Search API] Found 353 results
+ GET /api/search?q=%D8%A2%D9%8A%D8%A9 200 in 10ms (next.js: 1382µs, application-code: 8ms)
+[Search API] Searching for: "سبيل" (original: "سبيل")
+[Search API] Found 164 results
+ GET /api/search?q=%D8%B3%D8%A8%D9%8A%D9%84 200 in 8ms (next.js: 1264µs, application-code: 6ms)
+[Search API] Searching for: "ر ح م" (original: "ر ح م")
+[Search API] Found 0 results
+ GET /api/search?q=%D8%B1%20%D8%AD%20%D9%85 200 in 4ms (next.js: 1679µs, application-code: 3ms)
+[Search API] Searching for: "ن و ر" (original: "ن و ر")
+[Search API] Found 0 results
+ GET /api/search?q=%D9%86%20%D9%88%20%D8%B1 200 in 4ms (next.js: 1221µs, application-code: 3ms)
+[Search API] Searching for: "ع ق ل" (original: "ع ق ل")
+[Search API] Found 0 results
+ GET /api/search?q=%D8%B9%20%D9%82%20%D9%84 200 in 4ms (next.js: 1234µs, application-code: 2ms)
+[Search API] Searching for: "ق ل ب" (original: "ق ل ب")
+[Search API] Found 0 results
+ GET /api/search?q=%D9%82%20%D9%84%20%D8%A8 200 in 4ms (next.js: 1522µs, application-code: 2ms)
+[Search API] Searching for: "م ل ك" (original: "م ل ك")
+[Search API] Found 0 results
+ GET /api/search?q=%D9%85%20%D9%84%20%D9%83 200 in 4ms (next.js: 1197µs, application-code: 2ms)
+[Search API] Searching for: "ن ف س" (original: "ن ف س")
+[Search API] Found 0 results
+ GET /api/search?q=%D9%86%20%D9%81%20%D8%B3 200 in 4ms (next.js: 1153µs, application-code: 3ms)
+[Search API] Searching for: "ك ت ب" (original: "ك ت ب")
+[Search API] Found 0 results
+ GET /api/search?q=%D9%83%20%D8%AA%20%D8%A8 200 in 5ms (next.js: 1356µs, application-code: 4ms)
+[Search API] Searching for: "ح ك م" (original: "ح ك م")
+[Search API] Found 0 results
+ GET /api/search?q=%D8%AD%20%D9%83%20%D9%85 200 in 4ms (next.js: 1167µs, application-code: 3ms)
+[Search API] Searching for: "zzznomatch" (original: "zzznomatch")
+[Search API] Found 0 results
+ GET /api/search?q=zzznomatch 200 in 4ms (next.js: 1335µs, application-code: 3ms)
+ GET /api/search?q=%D8%AD%D9%85%D8%A7%D8%B1 200 in 422ms (next.js: 402ms, application-code: 21ms)
+ GET /api/search?q=%D9%86%D9%88%D8%B1 200 in 93ms (next.js: 1415µs, application-code: 91ms)
+ GET /api/search?q=%D8%B1%20%D8%AD%20%D9%85 200 in 139ms (next.js: 1789µs, application-code: 137ms)
+ GET /api/search?q=%D9%82%20%D9%84%20%D8%A8 200 in 180ms (next.js: 1401µs, application-code: 179ms)
+ GET /api/search?q=%D8%B9%20%D9%82%20%D9%84 200 in 164ms (next.js: 1386µs, application-code: 162ms)
+ GET /api/search?q=%D9%86%20%D9%88%20%D8%B1 200 in 212ms (next.js: 1258µs, application-code: 211ms)
+ GET /api/search?q=%D9%85%20%D9%84%20%D9%83 200 in 174ms (next.js: 1672µs, application-code: 172ms)
+ GET /api/search?q=%D9%88%D9%82%D9%89 200 in 17ms (next.js: 1183µs, application-code: 15ms)
+ GET /api/search?q=%D9%86%20%D9%81%20%D8%B3 200 in 162ms (next.js: 1191µs, application-code: 160ms)
+ GET /api/search?q=%D8%AD%20%D9%83%20%D9%85 200 in 109ms (next.js: 1399µs, application-code: 107ms)
+ GET /api/search?q=%D8%B4%20%D9%83%20%D8%B1 200 in 61ms (next.js: 1217µs, application-code: 60ms)
+ GET /api/search?q=%D9%85%D9%84%D9%83 200 in 63ms (next.js: 1362µs, application-code: 62ms)
+ GET /api/search?q=%D8%AA%D9%82%D9%88%D9%89 200 in 66ms (next.js: 1207µs, application-code: 65ms)
+ GET /api/search?q=%D9%86%D9%81%D8%B3 200 in 65ms (next.js: 1343µs, application-code: 64ms)
+ GET /api/search?q=%D8%AD%D9%83%D9%85%D8%A9 200 in 66ms (next.js: 1130µs, application-code: 65ms)
+ GET /api/search?q=%D8%B4%D9%83%D8%B1 200 in 80ms (next.js: 1232µs, application-code: 79ms)
+○ Compiling / ...
+ GET / 200 in 6.2s (next.js: 5.5s, application-code: 708ms)
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html
+                          lang="ar"
+                          dir="rtl"
+                          className="amiri_quran_9e9365cf-module__OlFGLW__variable cairo_25e274f1-module__BTK2ca__vari..."
+-                         data-scribe-recorder-ready="true"
+                        >
+                  ...
+ 
