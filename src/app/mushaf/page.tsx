@@ -119,7 +119,6 @@ export default function MushafPage() {
         const params = new URLSearchParams({
           chapter: chapter.toString(),
           words: "true",
-          translations: "20",
           per_page: "50",
           page: page.toString(),
         });
@@ -374,9 +373,6 @@ export default function MushafPage() {
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900/20 backdrop-blur-sm overflow-hidden divide-y divide-zinc-800/50">
               {verses.map((verse) => {
                 const isVisible = visibleVerses.has(verse.id);
-                const translation = verse.translations?.[0]?.text ?? "";
-                // Strip any HTML from translation
-                const cleanTranslation = translation.replace(/<[^>]*>/g, "");
 
                 return (
                   <div
@@ -408,12 +404,6 @@ export default function MushafPage() {
                           {verse.text_uthmani}
                         </p>
 
-                        {/* Translation */}
-                        {cleanTranslation && (
-                          <p className="text-base leading-relaxed text-zinc-500 border-t border-zinc-800/40 pt-4">
-                            {cleanTranslation}
-                          </p>
-                        )}
                       </div>
                     </div>
                   </div>
