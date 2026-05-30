@@ -1,168 +1,122 @@
 "use client";
 
-import { Search, Loader2, ChevronDown, ChevronUp, FlaskConical } from "lucide-react";
-import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { Search, Loader2, Filter } from "lucide-react";
+import { useState } from "react";
 
-// ── Real tested examples embedded from verified API runs ──────────────────────
-const EXAMPLES = [
-  {
-    query: "حمار",
-    label: "حمار",
-    type: "بحث بكلمة محددة",
-    total: 2,
-    suras: [
-      {
-        name: "البقرة",
-        count: 1,
-        verses: [{ aya: "٢٥٩", text: "أَوْ كَالَّذِي مَرَّ عَلَىٰ قَرْيَةٍ وَهِيَ خَاوِيَةٌ عَلَىٰ عُرُوشِهَا ۖ قَالَ أَنَّىٰ يُحْيِي هَٰذِهِ اللَّهُ بَعْدَ مَوْتِهَا ۖ فَأَمَاتَهُ اللَّهُ مِائَةَ عَامٍ ثُمَّ بَعَثَهُ ۖ قَالَ كَمْ لَبِثْتَ ۖ قَالَ لَبِثْتُ يَوْمًا أَوْ بَعْضَ يَوْمٍ ۖ قَالَ بَل لَّبِثْتَ مِائَةَ عَامٍ فَانظُرْ إِلَىٰ طَعَامِكَ وَشَرَابِكَ لَمْ يَتَسَنَّهْ ۖ وَانظُرْ إِلَىٰ حِمَارِكَ..." }],
-      },
-      {
-        name: "الجمعة",
-        count: 1,
-        verses: [{ aya: "٥", text: "مَثَلُ الَّذِينَ حُمِّلُوا التَّوْرَاةَ ثُمَّ لَمْ يَحْمِلُوهَا كَمَثَلِ الْحِمَارِ يَحْمِلُ أَسْفَارًا ۚ بِئْسَ مَثَلُ الْقَوْمِ الَّذِينَ كَذَّبُوا بِآيَاتِ اللَّهِ" }],
-      },
-    ],
-  },
-  {
-    query: "نور",
-    label: "نور",
-    type: "بحث بكلمة — يشمل جميع المشتقات",
-    total: 436,
-    suras: [
-      {
-        name: "البقرة",
-        count: 17,
-        verses: [
-          { aya: "١٧", text: "مَثَلُهُمْ كَمَثَلِ الَّذِي اسْتَوْقَدَ نَارًا فَلَمَّا أَضَاءَتْ مَا حَوْلَهُ ذَهَبَ اللَّهُ بِنُورِهِمْ وَتَرَكَهُمْ فِي ظُلُمَاتٍ لَّا يُبْصِرُونَ" },
-          { aya: "٢٥٧", text: "اللَّهُ وَلِيُّ الَّذِينَ آمَنُوا يُخْرِجُهُم مِّنَ الظُّلُمَاتِ إِلَى النُّورِ ۖ وَالَّذِينَ كَفَرُوا أَوْلِيَاؤُهُمُ الطَّاغُوتُ يُخْرِجُونَهُم مِّنَ النُّورِ إِلَى الظُّلُمَاتِ" },
-        ],
-      },
-      {
-        name: "النساء",
-        count: 5,
-        verses: [{ aya: "١٧٤", text: "يَا أَيُّهَا النَّاسُ قَدْ جَاءَكُم بُرْهَانٌ مِّن رَّبِّكُمْ وَأَنزَلْنَا إِلَيْكُمْ نُورًا مُّبِينًا" }],
-      },
-    ],
-  },
-  {
-    query: "ر ح م",
-    label: "ر ح م",
-    type: "بحث بالجذر — جميع المشتقات الصرفية",
-    total: 2248,
-    suras: [
-      {
-        name: "الفاتحة",
-        count: 4,
-        verses: [
-          { aya: "١", text: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ" },
-          { aya: "٣", text: "الرَّحْمَٰنِ الرَّحِيمِ" },
-        ],
-      },
-      {
-        name: "البقرة",
-        count: 107,
-        verses: [{ aya: "١٦٣", text: "وَإِلَٰهُكُمْ إِلَٰهٌ وَاحِدٌ ۖ لَّا إِلَٰهَ إِلَّا هُوَ الرَّحْمَٰنُ الرَّحِيمُ" }],
-      },
-    ],
-  },
+const toArabicNumeral = (n: number): string =>
+  n.toString().replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[+d]);
+
+const matchTypeLabels: Record<string, { label: string; color: string }> = {
+  exact:  { label: "مطابقة تامة", color: "bg-teal-500/20 text-teal-400 border-teal-500/30" },
+  root:   { label: "جذر",        color: "bg-amber-500/20 text-amber-400 border-amber-500/30" },
+  lemma:  { label: "لفظ",        color: "bg-purple-500/20 text-purple-400 border-purple-500/30" },
+  fuzzy:  { label: "تقريبي",     color: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
+};
+
+const searchModes = [
+  { value: "all",   label: "الكل" },
+  { value: "exact", label: "مطابقة تامة" },
+  { value: "root",  label: "بحث بالجذر" },
+  { value: "lemma", label: "بحث باللفظ" },
 ];
 
-function RootExplorerContent() {
-  const searchParams = useSearchParams();
+export default function RootExplorer() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any>(null);
   const [error, setError] = useState("");
-  const [expandedSuras, setExpandedSuras] = useState<Set<string>>(new Set());
-  const [activeExample, setActiveExample] = useState(0);
+  const [mode, setMode] = useState("all");
+  const [page, setPage] = useState(1);
 
-  const quickExamples = [
+  const examples = [
     { label: "حمار", desc: "(كلمة)" },
-    { label: "ر ح م", desc: "(رحمة)" },
-    { label: "ع ق ل", desc: "(عقل)" },
-    { label: "ن و ر", desc: "(نور)" },
-    { label: "س ل م", desc: "(سلام)" },
-    { label: "ق ل ب", desc: "(قلب)" },
-    { label: "ك ت ب", desc: "(كتاب)" },
-    { label: "ش ك ر", desc: "(شكر)" },
+    { label: "ر ح م", desc: "(جذر: رحمة)" },
+    { label: "ع ق ل", desc: "(جذر: عقل)" },
+    { label: "ن و ر", desc: "(جذر: نور)" },
+    { label: "س ل م", desc: "(جذر: سلام)" },
+    { label: "ق ل ب", desc: "(جذر: قلب)" },
+    { label: "ك ت ب", desc: "(جذر: كتابة)" },
+    { label: "ن ف س", desc: "(جذر: نفس)" },
   ];
 
-  const handleSearch = async (searchQuery: string) => {
+  const handleSearch = async (searchQuery: string, searchPage = 1, searchMode = mode) => {
     if (!searchQuery.trim()) return;
     setQuery(searchQuery);
     setLoading(true);
     setError("");
-    setResults(null);
-    setExpandedSuras(new Set());
+    if (searchPage === 1) setResults(null);
+
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`);
+      const params = new URLSearchParams({
+        q: searchQuery,
+        page: searchPage.toString(),
+        per_page: "50",
+        mode: searchMode,
+      });
+      const res = await fetch(`/api/search?${params.toString()}`);
       if (!res.ok) throw new Error("Search failed");
       const data = await res.json();
-      if (data.error) throw new Error(data.error);
       setResults(data);
+      setPage(searchPage);
     } catch {
-      setError("حدث خطأ أثناء البحث. يرجى المحاولة مرة أخرى.");
+      setError("حدث خطأ أثناء البحث. حاول مرة أخرى.");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    const q = searchParams.get("q");
-    if (q) handleSearch(q);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const groupedBySura: Record<string, any[]> =
-    results?.results?.reduce((acc: Record<string, any[]>, item: any) => {
-      if (!acc[item.sura_name]) acc[item.sura_name] = [];
-      acc[item.sura_name].push(item);
-      return acc;
-    }, {}) ?? {};
-
-  const toggleSura = (sura: string) => {
-    setExpandedSuras((prev) => {
-      const next = new Set(prev);
-      if (next.has(sura)) next.delete(sura); else next.add(sura);
-      return next;
-    });
-  };
-
-  const ex = EXAMPLES[activeExample];
-
   return (
     <div className="space-y-8">
       <header className="space-y-2">
         <h1 className="text-3xl font-bold text-zinc-100">محرك الجذور و الصرف</h1>
-        <p className="text-zinc-400">ابحث عن أي كلمة أو جذر ثلاثي من القرآن الكريم لاستكشاف جميع سياقات وروده.</p>
+        <p className="text-zinc-400">ابحث عن أي كلمة أو جذر في القرآن الكريم — بالكلمة أو بالجذر أو باللفظ.</p>
       </header>
-
-      {/* Search bar */}
+      
       <div className="space-y-4">
-        <form
-          onSubmit={(e) => { e.preventDefault(); handleSearch(query); }}
+        {/* Search bar */}
+        <form 
+          onSubmit={(e) => { e.preventDefault(); handleSearch(query, 1, mode); }}
           className="relative max-w-2xl"
         >
-          <input
-            type="text"
+          <input 
+            type="text" 
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="اكتب أي كلمة أو جذر (مثال: نور، رحمة، ر ح م، ع ق ل)"
-            className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-4 pr-12 pl-4 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 placeholder-zinc-500 transition-all"
+            placeholder="ابحث عن جذر أو كلمة (مثل: حمار، ر ح م، نور)"
+            className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-4 pr-12 pl-4 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 placeholder-zinc-500 transition-all text-lg"
           />
           <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2" disabled={loading}>
-            {loading
-              ? <Loader2 className="w-5 h-5 text-teal-500 animate-spin" />
-              : <Search className="w-5 h-5 text-zinc-500 hover:text-teal-400 transition-colors" />}
+            {loading ? <Loader2 className="w-5 h-5 text-teal-500 animate-spin" /> : <Search className="w-5 h-5 text-zinc-500 hover:text-teal-400 transition-colors" />}
           </button>
         </form>
 
-        <div className="max-w-2xl">
-          <p className="text-xs text-zinc-500 mb-2">جذور وكلمات مقترحة (انقر للبحث الفوري):</p>
-          <div className="flex flex-wrap gap-2">
-            {quickExamples.map((ex, i) => (
+        {/* Search mode selector */}
+        <div className="max-w-2xl flex items-center gap-2">
+          <Filter className="w-4 h-4 text-zinc-500" />
+          <div className="flex gap-1.5">
+            {searchModes.map((m) => (
               <button
-                key={i}
+                key={m.value}
+                onClick={() => { setMode(m.value); if (query) handleSearch(query, 1, m.value); }}
+                className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
+                  mode === m.value
+                    ? "bg-teal-500/20 text-teal-400 border border-teal-500/40"
+                    : "bg-zinc-900 text-zinc-500 border border-zinc-800 hover:border-zinc-700"
+                }`}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Example queries */}
+        <div className="max-w-2xl">
+          <div className="text-sm text-zinc-500 mb-2">أمثلة مقترحة (انقر للتجربة):</div>
+          <div className="flex flex-wrap gap-2">
+            {examples.map((ex, idx) => (
+              <button
+                key={idx}
                 onClick={() => handleSearch(ex.label)}
                 className="px-3 py-1.5 rounded-lg border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:border-teal-500/50 text-sm text-zinc-300 transition-all flex items-center gap-1 cursor-pointer"
               >
@@ -175,192 +129,93 @@ function RootExplorerContent() {
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-red-900/20 border border-red-900/50 text-red-400">{error}</div>
-      )}
-
-      {loading && (
-        <div className="flex items-center gap-3 p-6 text-zinc-400">
-          <Loader2 className="w-5 h-5 animate-spin text-teal-500" />
-          <span>جاري البحث في القرآن الكريم...</span>
+        <div className="p-4 rounded-xl bg-red-900/20 border border-red-900/50 text-red-400">
+          {error}
         </div>
       )}
 
-      {/* ── Live results ─────────────────────────────────────────────────── */}
       {results && (
-        <div className="space-y-4">
-          {/* Fallback notice — shown only when no exact matches exist */}
-          {results.pagination?.exactOnly === false && (
-            <div className="px-4 py-2.5 rounded-xl border border-amber-900/40 bg-amber-950/20 text-xs text-amber-400/80">
-              لم يُعثر على مطابقات دقيقة — تعرض النتائج المطابقات الصرفية الأقرب.
+        <div className="space-y-6">
+          {/* Results header */}
+          <div className="p-6 border border-zinc-800 rounded-2xl bg-zinc-900/30">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-zinc-100">
+                  نتائج البحث عن: <span className="text-teal-400">{results.query || query}</span>
+                </h2>
+                <p className="text-zinc-400 mt-1">
+                  تم العثور على <span className="text-teal-400 font-bold">{toArabicNumeral(results.pagination?.totalResults ?? results.results?.length ?? 0)}</span> نتيجة
+                  {results.counts && (
+                    <span className="text-zinc-600 mr-2">
+                      (مطابقة: {toArabicNumeral(results.counts.simple ?? 0)} · جذر: {toArabicNumeral(results.counts.root ?? 0)} · لفظ: {toArabicNumeral(results.counts.lemma ?? 0)})
+                    </span>
+                  )}
+                </p>
+              </div>
             </div>
-          )}
-          <div className="p-5 border border-zinc-800 rounded-2xl bg-zinc-900/30 flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-zinc-100">
-                نتائج: <span className="text-teal-400">{query}</span>
-              </h2>
-              <p className="text-zinc-400 mt-1 text-sm">
-                <span className="text-teal-400 font-medium">{results.pagination?.totalResults ?? 0}</span> نتيجة في{" "}
-                <span className="text-teal-400 font-medium">{Object.keys(groupedBySura).length}</span> سورة
-                {(results.pagination?.totalResults ?? 0) > 100 && (
-                  <span className="text-zinc-500"> — يعرض أول ١٠٠ مطابقة دقيقة</span>
-                )}
-              </p>
-            </div>
-            <div className="text-4xl font-amiri text-teal-500 opacity-20 select-none">{query}</div>
           </div>
 
+          {/* Results list */}
           <div className="space-y-3">
-            {Object.keys(groupedBySura).length === 0 && (
-              <div className="p-6 rounded-2xl border border-zinc-800 bg-zinc-900/30 text-center text-zinc-500">
-                لم يتم العثور على نتائج لـ &quot;{query}&quot;. جرب كلمة أو جذراً مختلفاً.
-              </div>
-            )}
-            {Object.entries(groupedBySura).map(([sura, verses]) => {
-              const expanded = expandedSuras.has(sura);
-              const shown = expanded ? verses : verses.slice(0, 2);
+            {(results.results ?? []).map((item: any, idx: number) => {
+              const mt = matchTypeLabels[item.matchType] ?? matchTypeLabels.exact;
               return (
-                <div key={sura} className="rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:border-teal-500/20 transition-all overflow-hidden">
-                  <button onClick={() => toggleSura(sura)} className="w-full p-4 flex items-center justify-between text-right">
-                    <div className="flex items-center gap-2 text-sm font-medium">
-                      <span className="text-teal-400">سورة {sura}</span>
-                      <span className="text-zinc-600">•</span>
-                      <span className="text-zinc-400">{verses.length} آية</span>
+                <div key={idx} className="p-6 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:border-teal-500/20 transition-all group">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-teal-400 font-medium">سورة {item.sura_name}</span>
+                      <span className="text-zinc-600">·</span>
+                      <span className="text-teal-400">آية {item.aya_id_display}</span>
+                      <span className="text-zinc-600">·</span>
+                      <span className="text-zinc-500">جزء {toArabicNumeral(item.juz_id ?? 0)}</span>
                     </div>
-                    {verses.length > 2 && (
-                      expanded
-                        ? <ChevronUp className="w-4 h-4 text-zinc-500" />
-                        : <ChevronDown className="w-4 h-4 text-zinc-500" />
-                    )}
-                  </button>
-                  <div className="px-4 pb-4 space-y-3">
-                    {shown.map((item: any, i: number) => (
-                      <div key={i} className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/80">
-                        <p className="font-amiri text-2xl leading-loose text-zinc-100">{item.uthmani}</p>
-                        <div className="mt-2 flex items-center gap-2 text-xs text-zinc-500 flex-wrap">
-                          <span>— آية {item.aya_id_display}، سورة {sura}</span>
-                          {item.matchedTokens?.[0] && (
-                            <span
-                              title="الكلمة المطابقة في هذه الآية"
-                              className="px-1.5 py-0.5 rounded bg-teal-900/40 text-teal-300 border border-teal-800/40 font-amiri text-sm"
-                            >
-                              {item.matchedTokens[0]}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                    {!expanded && verses.length > 2 && (
-                      <button onClick={() => toggleSura(sura)} className="text-sm text-teal-500 hover:text-teal-400 transition-colors">
-                        + {verses.length - 2} آية أخرى
-                      </button>
-                    )}
+                    <span className={`px-2.5 py-1 rounded-md text-xs border ${mt.color}`}>
+                      {mt.label}
+                    </span>
                   </div>
+                  <p className="font-amiri text-2xl md:text-3xl leading-[2] text-zinc-100 selection:bg-teal-900 selection:text-teal-100">
+                    {item.uthmani}
+                  </p>
+                  {item.matchedTokens && item.matchedTokens.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {item.matchedTokens.map((token: string, i: number) => (
+                        <span key={i} className="px-2 py-0.5 rounded bg-teal-500/10 text-teal-400 text-sm border border-teal-500/20">
+                          {token}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
-        </div>
-      )}
 
-      {/* ── Tested examples (shown only before first search) ─────────────── */}
-      {!results && !loading && (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-sm text-zinc-400">
-            <FlaskConical className="w-4 h-4 text-teal-500" />
-            <span className="font-medium text-zinc-300">أمثلة من بيانات مختبرة فعلياً</span>
-            <span className="text-zinc-600">— انقر على مثال لتشغيله مباشرةً</span>
-          </div>
-
-          {/* Example tabs */}
-          <div className="flex gap-2 flex-wrap">
-            {EXAMPLES.map((e, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveExample(i)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all border ${
-                  activeExample === i
-                    ? "bg-teal-900/30 border-teal-600/50 text-teal-300"
-                    : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700"
-                }`}
-              >
-                <span className="font-amiri text-base ml-1">{e.label}</span>
-                <span className="text-xs opacity-60">({e.total.toLocaleString("ar-EG")} نتيجة)</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Example output */}
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/20 overflow-hidden">
-            <div className="p-4 bg-zinc-900 border-b border-zinc-800 flex items-center justify-between">
-              <div>
-                <span className="text-sm text-zinc-400">البحث عن </span>
-                <span className="font-amiri text-lg text-teal-400 mx-1">{ex.label}</span>
-                <span className="text-xs text-zinc-500 mr-2">({ex.type})</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-zinc-400">
-                  <span className="text-teal-400 font-bold">{ex.total.toLocaleString("ar-EG")}</span> نتيجة في{" "}
-                  <span className="text-teal-400 font-bold">{ex.suras.length}+</span> سورة
-                </span>
+          {/* Pagination */}
+          {results.pagination && results.pagination.totalPages > 1 && (
+            <div className="flex justify-center gap-3">
+              {page > 1 && (
                 <button
-                  onClick={() => handleSearch(ex.query)}
-                  className="px-3 py-1.5 bg-teal-700 hover:bg-teal-600 text-white text-xs rounded-lg transition-colors"
+                  onClick={() => handleSearch(query, page - 1, mode)}
+                  className="px-6 py-2.5 rounded-xl border border-zinc-800 bg-zinc-900 hover:border-teal-500/40 text-zinc-300 transition-all"
                 >
-                  جرب البحث ←
+                  ← السابق
                 </button>
-              </div>
+              )}
+              <span className="px-4 py-2.5 text-zinc-500 text-sm">
+                صفحة {toArabicNumeral(page)} من {toArabicNumeral(results.pagination.totalPages)}
+              </span>
+              {page < results.pagination.totalPages && (
+                <button
+                  onClick={() => handleSearch(query, page + 1, mode)}
+                  className="px-6 py-2.5 rounded-xl border border-zinc-800 bg-zinc-900 hover:border-teal-500/40 text-zinc-300 transition-all"
+                >
+                  التالي →
+                </button>
+              )}
             </div>
-            <div className="p-4 space-y-3">
-              {ex.suras.map((s) => (
-                <div key={s.name} className="rounded-xl border border-zinc-800 overflow-hidden">
-                  <div className="px-4 py-2 bg-zinc-900/60 flex items-center gap-2 text-sm">
-                    <span className="text-teal-400 font-medium">سورة {s.name}</span>
-                    <span className="text-zinc-600">•</span>
-                    <span className="text-zinc-500">{s.count} آية في هذه السورة</span>
-                  </div>
-                  {s.verses.map((v) => (
-                    <div key={v.aya} className="px-4 py-3 border-t border-zinc-800/50">
-                      <p className="font-amiri text-xl leading-loose text-zinc-200">{v.text}</p>
-                      <p className="text-xs text-zinc-600 mt-1">— آية {v.aya}، سورة {s.name}</p>
-                    </div>
-                  ))}
-
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* How-to guide */}
-          <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/20 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-zinc-400">
-            <div>
-              <p className="text-zinc-200 font-medium mb-1">بحث بالجذر الثلاثي</p>
-              <p>اكتب الحروف مفصولة بمسافات: <span className="text-teal-400">ر ح م</span> أو <span className="text-teal-400">ن و ر</span></p>
-            </div>
-            <div>
-              <p className="text-zinc-200 font-medium mb-1">بحث بالكلمة</p>
-              <p>اكتب الكلمة مباشرةً: <span className="text-teal-400">رحمة</span> أو <span className="text-teal-400">النور</span></p>
-            </div>
-            <div>
-              <p className="text-zinc-200 font-medium mb-1">النتائج</p>
-              <p>تُجمَّع تلقائياً حسب السورة مع إمكانية التوسيع</p>
-            </div>
-          </div>
+          )}
         </div>
       )}
     </div>
-  );
-}
-
-export default function RootExplorer() {
-  return (
-    <Suspense fallback={
-      <div className="flex items-center gap-3 p-8 text-zinc-400">
-        <Loader2 className="w-5 h-5 animate-spin text-teal-500" />
-        <span>جاري التحميل...</span>
-      </div>
-    }>
-      <RootExplorerContent />
-    </Suspense>
   );
 }
