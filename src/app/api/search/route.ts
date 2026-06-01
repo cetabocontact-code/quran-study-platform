@@ -19,10 +19,12 @@ const g = global as any;
 //   • normRoot — fold ALL hamza carriers ء/أ/إ/آ/ؤ/ئ → ا. For ROOT strings: the
 //     morphology writes roots with bare alif (آخر → ا-خ-ر، قرآن → ق-ر-ا) while the
 //     wordMap’s root field uses ء/أ; folding lets the two spaces meet.
+// Both also fold alif-maqsura ى → ي, so ى-final words (موسى، على، يهدى، ألقى …) resolve
+// identically whether the corpus or the query spells them with ى or ي.
 const normKey = (s: string) =>
-  removeTashkeel(s || '').replace(/[أإآ]/g, 'ا').replace(/ـ/g, '');
+  removeTashkeel(s || '').replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ـ/g, '');
 const normRoot = (s: string) =>
-  removeTashkeel(s || '').replace(/[أإآءؤئ]/g, 'ا').replace(/ـ/g, '');
+  removeTashkeel(s || '').replace(/[أإآءؤئ]/g, 'ا').replace(/ى/g, 'ي').replace(/ـ/g, '');
 
 // Verse → its display word tokens (Arabic letters only, no diacritics/markers).
 const tokensOf = (v: any) =>
