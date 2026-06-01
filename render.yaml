@@ -1,0 +1,14 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# Deploy: Render dashboard → New + → Blueprint → pick this repo → Apply.
+# root_stats.json is committed, so the build needs no pre-generation step.
+services:
+  - type: web
+    name: quran-study-platform
+    runtime: node
+    plan: free
+    branch: main
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
