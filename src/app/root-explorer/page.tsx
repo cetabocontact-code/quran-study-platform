@@ -1,16 +1,21 @@
 "use client";
 
 import { Search, Loader2, Filter } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const toArabicNumeral = (n: number): string =>
   n.toString().replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[+d]);
+
+// Present root letters joined (ر ح م → رحم) without diacritics — review #6.
+// (Search still runs on the original value so matching behaviour is unchanged.)
+const connectLetters = (s: string): string => s.replace(/[\s-]+/g, "");
 
 const matchTypeLabels: Record<string, { label: string; color: string }> = {
   exact:  { label: "مطابقة تامة", color: "bg-teal-500/20 text-teal-400 border-teal-500/30" },
   root:   { label: "جذر",        color: "bg-amber-500/20 text-amber-400 border-amber-500/30" },
   lemma:  { label: "لفظ",        color: "bg-purple-500/20 text-purple-400 border-purple-500/30" },
   fuzzy:  { label: "تقريبي",     color: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
+  semantic: { label: "مفهوم", color: "bg-indigo-500/20 text-indigo-400 border-indigo-500/30" },
 };
 
 const searchModes = [
@@ -18,6 +23,7 @@ const searchModes = [
   { value: "exact", label: "مطابقة تامة" },
   { value: "root",  label: "بحث بالجذر" },
   { value: "lemma", label: "بحث باللفظ" },
+  { value: "semantic", label: "بحث بالمفهوم" },
 ];
 
 export default function RootExplorer() {
@@ -39,9 +45,23 @@ export default function RootExplorer() {
     { label: "ن ف س", desc: "(جذر: نفس)" },
   ];
 
+  const semanticCategories = [
+    { label: "حيوانات", key: "حيوان" },
+    { label: "نباتات", key: "نبات" },
+    { label: "ماء", key: "ماء" },
+    { label: "نار", key: "نار" },
+    { label: "حجارة", key: "حجارة" },
+    { label: "معادن", key: "معدن" },
+    { label: "شمس", key: "شمس" },
+    { label: "قمر", key: "قمر" },
+    { label: "نجوم", key: "نجوم" },
+    { label: "ألوان", key: "لون" },
+  ];
+
   const handleSearch = async (searchQuery: string, searchPage = 1, searchMode = mode) => {
     if (!searchQuery.trim()) return;
     setQuery(searchQuery);
+    setMode(searchMode);
     setLoading(true);
     setError("");
     if (searchPage === 1) setResults(null);
@@ -64,6 +84,17 @@ export default function RootExplorer() {
       setLoading(false);
     }
   };
+
+  // Run a search automatically when arriving with ?q=… (e.g. from the homepage
+  // "جذور مختبرة" cards). Reads window.location on mount only — no Suspense
+  // boundary needed, and the search stays client-side as before.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("q");
+    const m = params.get("mode");
+    if (q && q.trim()) handleSearch(q, 1, m || "all");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -120,8 +151,25 @@ export default function RootExplorer() {
                 onClick={() => handleSearch(ex.label)}
                 className="px-3 py-1.5 rounded-lg border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:border-teal-500/50 text-sm text-zinc-300 transition-all flex items-center gap-1 cursor-pointer"
               >
-                <span className="font-bold text-teal-400">{ex.label}</span>
+                <span className="font-bold text-teal-400">{connectLetters(ex.label)}</span>
                 <span className="text-zinc-500 text-xs">{ex.desc}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Semantic concept chips */}
+        <div className="max-w-2xl">
+          <div className="text-sm text-zinc-500 mb-2">تصفّح بالمفهوم:</div>
+          <div className="flex flex-wrap gap-2">
+            {semanticCategories.map((category) => (
+              <button
+                key={category.key}
+                onClick={() => handleSearch(category.key, 1, "semantic")}
+                className="px-3 py-1.5 rounded-lg border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:border-teal-500/50 text-sm text-zinc-300 transition-all flex items-center gap-1 cursor-pointer"
+              >
+                <span className="font-bold text-teal-400">{category.label}</span>
+                <span className="text-zinc-500 text-xs">(مفهوم)</span>
               </button>
             ))}
           </div>
@@ -147,7 +195,7 @@ export default function RootExplorer() {
                   تم العثور على <span className="text-teal-400 font-bold">{toArabicNumeral(results.pagination?.totalResults ?? results.results?.length ?? 0)}</span> نتيجة
                   {results.counts && (
                     <span className="text-zinc-600 mr-2">
-                      (مطابقة: {toArabicNumeral(results.counts.simple ?? 0)} · جذر: {toArabicNumeral(results.counts.root ?? 0)} · لفظ: {toArabicNumeral(results.counts.lemma ?? 0)})
+                      (مطابقة: {toArabicNumeral(results.counts.simple ?? 0)} · جذر: {toArabicNumeral(results.counts.root ?? 0)} · لفظ: {toArabicNumeral(results.counts.lemma ?? 0)} · مفهوم: {toArabicNumeral(results.counts.semantic ?? 0)})
                     </span>
                   )}
                 </p>

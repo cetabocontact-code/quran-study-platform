@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "build:root-stats": "node --experimental-strip-types src/scripts/build-root-stats.ts",
     "lint": "eslint"
   },
   "dependencies": {

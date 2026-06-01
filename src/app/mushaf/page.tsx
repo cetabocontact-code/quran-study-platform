@@ -101,9 +101,10 @@ function ViewSwitcher({
   activeView: ViewMode;
   onViewChange: (v: ViewMode) => void;
 }) {
+  // Order: by page → by verse → by word (RTL reading order requested by review).
   const views: { key: ViewMode; label: string; icon: string }[] = [
-    { key: "continuous", label: "قراءة متصلة", icon: "📖" },
     { key: "mushaf_page", label: "صفحة المصحف", icon: "📄" },
+    { key: "continuous", label: "قراءة متصلة", icon: "📖" },
     { key: "word_by_word", label: "كلمة بكلمة", icon: "🔤" },
   ];
 
@@ -479,12 +480,12 @@ export default function MushafPage() {
         <div className="px-4 md:px-8">
           <div className="flex items-center justify-center gap-4">
             <button
-              onClick={goToNextPage}
-              disabled={mushafPageNumber >= TOTAL_MUSHAF_PAGES || loadingMushafPage}
+              onClick={goToPrevPage}
+              disabled={mushafPageNumber <= 1 || loadingMushafPage}
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-zinc-800 bg-zinc-900/80 hover:border-teal-500/40 hover:bg-zinc-900 text-zinc-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronRight className="w-4 h-4" />
-              <span className="text-sm">الصفحة التالية</span>
+              <span className="text-sm">الصفحة السابقة</span>
             </button>
 
             <div className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-500/10 border border-teal-500/30">
@@ -508,11 +509,11 @@ export default function MushafPage() {
             </div>
 
             <button
-              onClick={goToPrevPage}
-              disabled={mushafPageNumber <= 1 || loadingMushafPage}
+              onClick={goToNextPage}
+              disabled={mushafPageNumber >= TOTAL_MUSHAF_PAGES || loadingMushafPage}
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-zinc-800 bg-zinc-900/80 hover:border-teal-500/40 hover:bg-zinc-900 text-zinc-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
             >
-              <span className="text-sm">الصفحة السابقة</span>
+              <span className="text-sm">الصفحة التالية</span>
               <ChevronLeft className="w-4 h-4" />
             </button>
           </div>

@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, BookOpenText, Compass, Search, Activity, Book, Menu, X } from "lucide-react";
+import { BookOpen, BookOpenText, Compass, Search, Activity, Book, Scale, Menu, X } from "lucide-react";
 import { useState } from "react";
 
 const navigation = [
   { name: "المصحف", href: "/mushaf", icon: BookOpenText },
   { name: "الرئيسية", href: "/", icon: BookOpen },
   { name: "محرك الجذور", href: "/root-explorer", icon: Search },
+  { name: "الأضداد", href: "/opposites", icon: Scale },
   { name: "الإحالة الذاتية", href: "/self-reference", icon: Activity },
   { name: "وضع الاكتشاف", href: "/discovery", icon: Compass },
 ];

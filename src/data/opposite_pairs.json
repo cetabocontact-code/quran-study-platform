@@ -1,0 +1,103 @@
+{
+  "generatedAt": "2026-05-30",
+  "matchMode": "exact",
+  "note": "Curated Qur'anic opposite/antonym pairs. 'query' is the tashkeel-free, alef-normalized form used for live search; 'label' is the display form. Counts are computed live from the search engine, not stored here.",
+  "pairs": [
+    {
+      "id": "dunya-akhira",
+      "theme": "الحياة والمصير",
+      "a": { "label": "الدنيا", "query": "الدنيا" },
+      "b": { "label": "الآخرة", "query": "الاخرة" }
+    },
+    {
+      "id": "iman-kufr",
+      "theme": "العقيدة",
+      "a": { "label": "الإيمان", "query": "الايمان" },
+      "b": { "label": "الكفر", "query": "الكفر" }
+    },
+    {
+      "id": "nur-zulumat",
+      "theme": "الهداية والضلال",
+      "a": { "label": "النور", "query": "النور" },
+      "b": { "label": "الظلمات", "query": "الظلمات" }
+    },
+    {
+      "id": "layl-nahar",
+      "theme": "الزمن والآيات",
+      "a": { "label": "الليل", "query": "الليل" },
+      "b": { "label": "النهار", "query": "النهار" }
+    },
+    {
+      "id": "sama-ard",
+      "theme": "الكون",
+      "a": { "label": "السماء", "query": "السماء" },
+      "b": { "label": "الأرض", "query": "الارض" }
+    },
+    {
+      "id": "janna-nar",
+      "theme": "الجزاء",
+      "a": { "label": "الجنة", "query": "الجنة" },
+      "b": { "label": "النار", "query": "النار" }
+    },
+    {
+      "id": "hayat-mawt",
+      "theme": "الوجود",
+      "a": { "label": "الحياة", "query": "الحياة" },
+      "b": { "label": "الموت", "query": "الموت" }
+    },
+    {
+      "id": "haqq-batil",
+      "theme": "القيم",
+      "a": { "label": "الحق", "query": "الحق" },
+      "b": { "label": "الباطل", "query": "الباطل" }
+    },
+    {
+      "id": "huda-dalal",
+      "theme": "الهداية والضلال",
+      "a": { "label": "الهدى", "query": "الهدى" },
+      "b": { "label": "الضلال", "query": "الضلال" }
+    },
+    {
+      "id": "malaika-shayatin",
+      "theme": "عوالم غيبية",
+      "a": { "label": "الملائكة", "query": "الملائكة" },
+      "b": { "label": "الشياطين", "query": "الشياطين" }
+    },
+    {
+      "id": "muminin-kafirin",
+      "theme": "الناس",
+      "a": { "label": "المؤمنين", "query": "المؤمنين" },
+      "b": { "label": "الكافرين", "query": "الكافرين" }
+    },
+    {
+      "id": "khayr-sharr",
+      "theme": "القيم",
+      "a": { "label": "الخير", "query": "الخير" },
+      "b": { "label": "الشر", "query": "الشر" }
+    },
+    {
+      "id": "ghayb-shahada",
+      "theme": "علم الله",
+      "a": { "label": "الغيب", "query": "الغيب" },
+      "b": { "label": "الشهادة", "query": "الشهادة" }
+    },
+    {
+      "id": "salihat-sayyiat",
+      "theme": "الأعمال",
+      "a": { "label": "الصالحات", "query": "الصالحات" },
+      "b": { "label": "السيئات", "query": "السيئات" }
+    },
+    {
+      "id": "yamin-shimal",
+      "theme": "أصحاب اليمين والشمال",
+      "a": { "label": "اليمين", "query": "اليمين" },
+      "b": { "label": "الشمال", "query": "الشمال" }
+    },
+    {
+      "id": "usr-yusr",
+      "theme": "سنن الابتلاء",
+      "a": { "label": "العسر", "query": "العسر" },
+      "b": { "label": "اليسر", "query": "اليسر" }
+    }
+  ]
+}

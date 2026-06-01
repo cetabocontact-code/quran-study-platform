@@ -1,17 +1,22 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
+// Counts = number of VERSES containing a word of that root, taken straight from
+// the Quranic-Arabic-Corpus morphology (the same authoritative index the search
+// engine now uses). The old figures (4383, 2856, …) were letter-coincidence
+// garbage — they counted any verse where the three letters appeared anywhere,
+// not actual root words. Verified: clicking a card lands on the identical count.
 const verifiedRoots = [
-  { root: "ن و ر", name: "نور", count: 4383, href: "/root-explorer?q=%D9%86%20%D9%88%20%D8%B1" },
-  { root: "ع ق ل", name: "عقل", count: 2813, href: "/root-explorer?q=%D8%B9%20%D9%82%20%D9%84" },
-  { root: "ك ت ب", name: "كتاب", count: 2856, href: "/root-explorer?q=%D9%83%20%D8%AA%20%D8%A8" },
-  { root: "ق ل ب", name: "قلب", count: 2979, href: "/root-explorer?q=%D9%82%20%D9%84%20%D8%A8" },
-  { root: "ر ح م", name: "رحمة", count: 2248, href: "/root-explorer?q=%D8%B1%20%D8%AD%20%D9%85" },
-  { root: "ن ف س", name: "نفس", count: 2485, href: "/root-explorer?q=%D9%86%20%D9%81%20%D8%B3" },
-  { root: "ح ك م", name: "حكمة", count: 2017, href: "/root-explorer?q=%D8%AD%20%D9%83%20%D9%85" },
-  { root: "ش ك ر", name: "شكر", count: 1196, href: "/root-explorer?q=%D8%B4%20%D9%83%20%D8%B1" },
-  { root: "س ل م", name: "سلام", count: 3206, href: "/root-explorer?q=%D8%B3%20%D9%84%20%D9%85" },
-  { root: "حمار", name: "بحث مباشر", count: 2, href: "/root-explorer?q=%D8%AD%D9%85%D8%A7%D8%B1" },
+  { root: "ن و ر", name: "نور", count: 174, href: "/root-explorer?q=%D9%86%20%D9%88%20%D8%B1" },
+  { root: "ع ق ل", name: "عقل", count: 49, href: "/root-explorer?q=%D8%B9%20%D9%82%20%D9%84" },
+  { root: "ك ت ب", name: "كتاب", count: 279, href: "/root-explorer?q=%D9%83%20%D8%AA%20%D8%A8" },
+  { root: "ق ل ب", name: "قلب", count: 155, href: "/root-explorer?q=%D9%82%20%D9%84%20%D8%A8" },
+  { root: "ر ح م", name: "رحمة", count: 313, href: "/root-explorer?q=%D8%B1%20%D8%AD%20%D9%85" },
+  { root: "ن ف س", name: "نفس", count: 270, href: "/root-explorer?q=%D9%86%20%D9%81%20%D8%B3" },
+  { root: "ح ك م", name: "حكمة", count: 189, href: "/root-explorer?q=%D8%AD%20%D9%83%20%D9%85" },
+  { root: "ش ك ر", name: "شكر", count: 69, href: "/root-explorer?q=%D8%B4%20%D9%83%20%D8%B1" },
+  { root: "س ل م", name: "سلام", count: 127, href: "/root-explorer?q=%D8%B3%20%D9%84%20%D9%85" },
+  { root: "حمار", name: "بحث مباشر", count: 6, href: "/root-explorer?q=%D8%AD%D9%85%D8%A7%D8%B1" },
 ];
 
 export default function Home() {
@@ -71,6 +76,20 @@ export default function Home() {
           <p className="text-zinc-400 leading-relaxed">
             محاور وبصائر تنبثق بشكل استقرائي من النص، تدفعك للتفكر والمقارنة
             بدلاً من تلقي استنتاجات جاهزة.
+          </p>
+        </Link>
+
+        <Link
+          href="/opposites"
+          className="group p-6 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/50 hover:border-teal-500/50 transition-all duration-300"
+        >
+          <h2 className="text-2xl font-bold text-zinc-100 mb-3 flex items-center justify-between">
+            الأضداد
+            <ArrowLeft className="w-5 h-5 text-zinc-600 group-hover:text-teal-400 group-hover:-translate-x-1 transition-all" />
+          </h2>
+          <p className="text-zinc-400 leading-relaxed">
+            اكتب كلمة فيظهر ضدّها في القرآن، ومعهما إحصاءات حيّة: عدد الورود،
+            الآيات، توزيع السور، والمواضع التي يلتقيان فيها.
           </p>
         </Link>
       </div>

@@ -1,266 +1,250 @@
 "use client";
 
-import {
-  Compass, Lightbulb, BookOpen, PenLine, Network,
-  ChevronDown, ChevronUp, FlaskConical,
-} from "lucide-react";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { Hash, Loader2, Search, Sparkles } from "lucide-react";
+import { FormEvent, useMemo, useState } from "react";
 
-type DiscoveryAction = "browse" | "note" | "network";
-
-type Discovery = {
-  id: string;
-  icon: "lightbulb" | "compass";
-  active: boolean;
-  title: string;
-  body: string;
-  root: string;       // used for browse/network navigation
-  wordQuery: string;  // used for the example verses fetch key
-  count: number;      // verified result count
-  actions: DiscoveryAction[];
-  exampleVerses: { sura: string; aya: string; text: string }[];
+type DiscoveryInsight = {
+  root: string;
+  rootLabel: string;
+  occurrenceCount: number;
+  verseCount: number;
+  topCoOccurringRoots: { root: string; label: string; count: number }[];
+  surahDistribution: { surahId: number; surahName: string; count: number }[];
+  positionalPatterns: {
+    openingVerses: number;
+    closingVerses: number;
+    firstAyah: number;
+    lastAyah: number;
+  };
+  sampleVerses: {
+    gid: number;
+    surahId: number;
+    surahName: string;
+    ayah: number;
+    ayahDisplay: string;
+    text: string;
+  }[];
+  description: string;
 };
 
-// All verse texts verified by running the live API against the actual dataset
-const discoveries: Discovery[] = [
-  {
-    id: "mulk",
-    icon: "lightbulb",
-    active: true,
-    title: "اكتشاف نمط دلالي: السلطة والمُلك",
-    body: "جذر (م ل ك) يظهر في سياقات تتحدث عن المساءلة بقدر ما يتحدث عن الاستحقاق. ما الرابط بين المُلك والمسؤولية في الخطاب القرآني؟",
-    root: "م ل ك",
-    wordQuery: "ملك",
-    count: 197,
-    actions: ["browse", "note"],
-    exampleVerses: [
-      { sura: "الفاتحة", aya: "٤", text: "مَالِكِ يَوْمِ الدِّينِ" },
-      { sura: "البقرة", aya: "١٠٧", text: "أَلَمْ تَعْلَمْ أَنَّ اللَّهَ لَهُ مُلْكُ السَّمَاوَاتِ وَالْأَرْضِ ۗ وَمَا لَكُم مِّن دُونِ اللَّهِ مِن وَلِيٍّ وَلَا نَصِيرٍ" },
-    ],
-  },
-  {
-    id: "taqwa",
-    icon: "compass",
-    active: false,
-    title: "تتبع مفاهيمي: التقوى",
-    body: "\"التقوى\" لا تُعرَّف بآية واحدة — تُبنى عبر أمثلة، سلوكيات، ومآلات. تشير ٢٣٨ آية إلى هذا المفهوم. ما الصورة التي تتشكّل منها؟",
-    root: "وقى",
-    wordQuery: "تقوى",
-    count: 238,
-    actions: ["browse", "network", "note"],
-    exampleVerses: [
-      { sura: "البقرة", aya: "١٩٧", text: "...وَتَزَوَّدُوا فَإِنَّ خَيْرَ الزَّادِ التَّقْوَىٰ ۚ وَاتَّقُونِ يَا أُولِي الْأَلْبَابِ" },
-      { sura: "المائدة", aya: "٢", text: "...وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ ۖ وَلَا تَعَاوَنُوا عَلَى الْإِثْمِ وَالْعُدْوَانِ" },
-    ],
-  },
-  {
-    id: "nafs",
-    icon: "lightbulb",
-    active: false,
-    title: "اكتشاف نمط دلالي: النفس بين الوصف والمسؤولية",
-    body: "جذر (ن ف س) يتراوح بين وصف الإنسان كفرد، والنفس كمسؤولة عن أفعالها. ٢٧١ آية تحمل هذا المفهوم — كيف يرسم القرآن حدود المسؤولية الذاتية؟",
-    root: "ن ف س",
-    wordQuery: "نفس",
-    count: 271,
-    actions: ["browse", "note"],
-    exampleVerses: [
-      { sura: "البقرة", aya: "٩", text: "يُخَادِعُونَ اللَّهَ وَالَّذِينَ آمَنُوا وَمَا يَخْدَعُونَ إِلَّا أَنفُسَهُمْ وَمَا يَشْعُرُونَ" },
-      { sura: "البقرة", aya: "٤٤", text: "أَتَأْمُرُونَ النَّاسَ بِالْبِرِّ وَتَنسَوْنَ أَنفُسَكُمْ وَأَنتُمْ تَتْلُونَ الْكِتَابَ ۚ أَفَلَا تَعْقِلُونَ" },
-    ],
-  },
-  {
-    id: "hukm",
-    icon: "compass",
-    active: false,
-    title: "تتبع مفاهيمي: الحُكم والحِكمة",
-    body: "كلمة (حكمة) تجمع في القرآن معاني: الحكم القضائي، والحكمة العملية، والإحكام البنيوي. في ١٨٩ آية يمكن تتبع كيف يتحول المعنى بحسب السياق.",
-    root: "ح ك م",
-    wordQuery: "حكمة",
-    count: 189,
-    actions: ["browse", "network"],
-    exampleVerses: [
-      { sura: "البقرة", aya: "١٢٩", text: "رَبَّنَا وَابْعَثْ فِيهِمْ رَسُولًا مِّنْهُمْ يَتْلُو عَلَيْهِمْ آيَاتِكَ وَيُعَلِّمُهُمُ الْكِتَابَ وَالْحِكْمَةَ وَيُزَكِّيهِمْ" },
-      { sura: "البقرة", aya: "٢٦٩", text: "يُؤْتِي الْحِكْمَةَ مَن يَشَاءُ ۚ وَمَن يُؤْتَ الْحِكْمَةَ فَقَدْ أُوتِيَ خَيْرًا كَثِيرًا ۗ وَمَا يَذَّكَّرُ إِلَّا أُولُو الْأَلْبَابِ" },
-    ],
-  },
-  {
-    id: "shukr",
-    icon: "lightbulb",
-    active: false,
-    title: "اكتشاف نمط دلالي: الشكر وضده الكفر",
-    body: "في القرآن، الشكر يُذكر أحياناً في مقابل الكفر — كجحود لا كمعتقد. في ٢٤١٠ آية، يمكن رصد هذا التعارض. ماذا يكشف هذا التقابل؟",
-    root: "ش ك ر",
-    wordQuery: "شكر",
-    count: 2410,
-    actions: ["browse", "note", "network"],
-    exampleVerses: [
-      { sura: "البقرة", aya: "٥٢", text: "ثُمَّ عَفَوْنَا عَنكُم مِّن بَعْدِ ذَٰلِكَ لَعَلَّكُمْ تَشْكُرُونَ" },
-      { sura: "البقرة", aya: "١٥٢", text: "فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ" },
-    ],
-  },
-];
+const toArabicNumber = (value: number): string => value.toLocaleString("ar-EG");
 
-export default function Discovery() {
-  const router = useRouter();
-  const [notes, setNotes] = useState<Record<string, string>>({});
-  const [openNotes, setOpenNotes] = useState<Set<string>>(new Set());
-  const [openExamples, setOpenExamples] = useState<Set<string>>(new Set(["mulk"])); // first card open by default
+export default function DiscoveryPage() {
+  const [insight, setInsight] = useState<DiscoveryInsight | null>(null);
+  const [rootInput, setRootInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
+  const maxSurahCount = useMemo(() => {
+    if (!insight?.surahDistribution.length) return 1;
+    return Math.max(...insight.surahDistribution.map((item) => item.count));
+  }, [insight]);
+
+  const loadInsight = async (root?: string) => {
+    setLoading(true);
+    setError("");
+
     try {
-      const saved = localStorage.getItem("basira-notes");
-      if (saved) setNotes(JSON.parse(saved));
-    } catch {}
-  }, []);
+      const params = root ? `?root=${encodeURIComponent(root)}` : "";
+      const response = await fetch(`/api/discovery${params}`);
+      const data = await response.json();
 
-  const saveNote = (id: string, text: string) => {
-    const updated = { ...notes, [id]: text };
-    setNotes(updated);
-    try { localStorage.setItem("basira-notes", JSON.stringify(updated)); } catch {}
+      if (!response.ok) {
+        throw new Error(data.error ?? "تعذر تحميل الاكتشاف");
+      }
+
+      setInsight(data.insight);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "حدث خطأ غير متوقع");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const toggle = (set: Set<string>, id: string): Set<string> => {
-    const next = new Set(set);
-    if (next.has(id)) next.delete(id); else next.add(id);
-    return next;
+  const handleRootSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const root = rootInput.trim();
+    if (root) loadInsight(root);
   };
 
   return (
     <div className="space-y-8">
-      <header className="space-y-2">
-        <h1 className="text-3xl font-bold text-zinc-100">وضع الاكتشاف</h1>
-        <p className="text-zinc-400">
-          بيئة استقرائية تعرض الأنماط والأدلة دون تقديم استنتاجات جاهزة.
-        </p>
+      <header className="space-y-3">
+        <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/20 bg-teal-500/10 px-3 py-1 text-sm text-teal-300">
+          <Sparkles className="h-4 w-4" />
+          <span>اكتشاف الأنماط</span>
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold text-zinc-100 md:text-4xl">وضع الاكتشاف</h1>
+          <p className="max-w-3xl text-zinc-400">
+            أنماط جذرية تظهر من توزيع الألفاظ، وتجاور الجذور، ومواضعها داخل السور.
+          </p>
+        </div>
       </header>
 
-      {/* How-to guide */}
-      <div className="p-5 rounded-xl border border-teal-900/30 bg-teal-900/5">
-        <h3 className="text-sm font-bold text-teal-400 mb-3">كيفية الاستخدام</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-zinc-400">
-          <div className="flex items-start gap-2">
-            <BookOpen className="w-4 h-4 text-teal-500 mt-0.5 shrink-0" />
-            <span><span className="text-zinc-200">استعرض الآيات</span> — يفتح محرك الجذور بنتائج هذا الجذر</span>
+      <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto]">
+        <form
+          onSubmit={handleRootSearch}
+          className="flex min-w-0 flex-col gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/45 p-4 sm:flex-row"
+        >
+          <div className="relative flex-1">
+            <input
+              value={rootInput}
+              onChange={(event) => setRootInput(event.target.value)}
+              placeholder="اكتب جذرا مثل: ر ح م"
+              className="h-12 w-full rounded-xl border border-zinc-800 bg-zinc-950/70 pr-11 pl-4 font-amiri text-xl text-zinc-100 outline-none transition-all placeholder:text-zinc-600 focus:border-teal-500/70 focus:ring-2 focus:ring-teal-500/20"
+            />
+            <Hash className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500" />
           </div>
-          <div className="flex items-start gap-2">
-            <PenLine className="w-4 h-4 text-teal-500 mt-0.5 shrink-0" />
-            <span><span className="text-zinc-200">سجل ملاحظتك</span> — اكتب استنتاجك، يُحفظ في متصفحك</span>
-          </div>
-          <div className="flex items-start gap-2">
-            <Network className="w-4 h-4 text-teal-500 mt-0.5 shrink-0" />
-            <span><span className="text-zinc-200">ابحث في الشبكة</span> — يعرض الخريطة الدلالية للمفهوم</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-6">
-        {discoveries.map((d) => (
-          <div
-            key={d.id}
-            className={`rounded-2xl border overflow-hidden ${
-              d.active ? "border-teal-900/50 bg-teal-900/10" : "border-zinc-800 bg-zinc-900/30"
-            }`}
+          <button
+            type="submit"
+            disabled={loading}
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-teal-600 px-5 font-semibold text-white transition-colors hover:bg-teal-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <div className="p-6">
-              <div className="flex items-start gap-4">
-                <div className={`p-3 rounded-xl shrink-0 ${d.active ? "bg-teal-500/20" : "bg-zinc-800"}`}>
-                  {d.icon === "lightbulb"
-                    ? <Lightbulb className={`w-6 h-6 ${d.active ? "text-teal-400" : "text-zinc-400"}`} />
-                    : <Compass className={`w-6 h-6 ${d.active ? "text-teal-400" : "text-zinc-400"}`} />}
-                </div>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+            <span>استكشف الجذر</span>
+          </button>
+        </form>
 
-                <div className="space-y-3 flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-xl font-bold text-zinc-100">{d.title}</h3>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-xs bg-zinc-800 text-zinc-400 px-2 py-1 rounded-full font-amiri">{d.root}</span>
-                      <span className="text-xs bg-zinc-800/60 text-teal-400 px-2 py-1 rounded-full tabular-nums">
-                        {d.count.toLocaleString("ar-EG")} آية
-                      </span>
-                    </div>
+        <button
+          onClick={() => loadInsight()}
+          disabled={loading}
+          className="inline-flex h-full min-h-20 items-center justify-center gap-2 rounded-2xl border border-teal-500/30 bg-teal-500/10 px-6 font-semibold text-teal-200 transition-all hover:border-teal-400/60 hover:bg-teal-500/15 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
+          <span>اكتشف نمطا</span>
+        </button>
+      </section>
+
+      {error && (
+        <div className="rounded-2xl border border-red-900/60 bg-red-950/30 p-4 text-red-300">
+          {error}
+        </div>
+      )}
+
+      {!insight && !loading && !error && (
+        <section className="rounded-3xl border border-zinc-800 bg-zinc-900/45 p-10 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-teal-500/25 bg-teal-500/10 text-teal-300">
+            <Sparkles className="h-7 w-7" />
+          </div>
+          <h2 className="mt-6 text-2xl font-bold text-zinc-100">ابدأ باكتشاف نمط</h2>
+          <p className="mx-auto mt-2 max-w-2xl text-zinc-500">
+            اختر جذرا محددا، أو دع النظام يعرض جذرا من بيانات القرآن.
+          </p>
+        </section>
+      )}
+
+      {insight && (
+        <section className="space-y-6">
+          <div className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
+            <div className="rounded-3xl border border-teal-500/20 bg-gradient-to-br from-zinc-900 via-zinc-900 to-teal-950/30 p-7 shadow-2xl shadow-black/20">
+              <div className="flex flex-wrap items-start justify-between gap-5">
+                <div>
+                  <div className="text-sm text-zinc-500">الجذر</div>
+                  <div className="mt-3 font-amiri text-6xl leading-[1.35] text-teal-200 md:text-7xl">
+                    {insight.rootLabel}
                   </div>
-
-                  <p className={`leading-relaxed ${d.active ? "text-zinc-300" : "text-zinc-400"}`}>{d.body}</p>
-
-                  {/* Action buttons */}
-                  <div className="flex flex-wrap gap-3 pt-1">
-                    {d.actions.includes("browse") && (
-                      <button
-                        onClick={() => router.push(`/root-explorer?q=${encodeURIComponent(d.wordQuery)}`)}
-                        className="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg font-medium transition-colors text-sm flex items-center gap-2 cursor-pointer"
-                      >
-                        <BookOpen className="w-4 h-4" /> استعرض الآيات
-                      </button>
-                    )}
-                    {d.actions.includes("note") && (
-                      <button
-                        onClick={() => setOpenNotes(toggle(openNotes, d.id))}
-                        className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 rounded-lg font-medium transition-colors text-sm flex items-center gap-2 cursor-pointer"
-                      >
-                        <PenLine className="w-4 h-4" />
-                        سجل ملاحظتك
-                        {openNotes.has(d.id) ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                      </button>
-                    )}
-                    {d.actions.includes("network") && (
-                      <button
-                        onClick={() => router.push(`/self-reference?q=${encodeURIComponent(d.wordQuery)}`)}
-                        className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 rounded-lg font-medium transition-colors text-sm flex items-center gap-2 cursor-pointer"
-                      >
-                        <Network className="w-4 h-4" /> ابحث في الشبكة
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Notes textarea */}
-                  {openNotes.has(d.id) && (
-                    <div className="pt-1">
-                      <textarea
-                        value={notes[d.id] || ""}
-                        onChange={(e) => saveNote(d.id, e.target.value)}
-                        placeholder="اكتب ملاحظتك الاستقرائية هنا..."
-                        rows={3}
-                        className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-600 text-sm resize-none transition-all"
-                      />
-                      {notes[d.id] && <p className="text-xs text-teal-600 mt-1">✓ تم الحفظ تلقائياً</p>}
-                    </div>
-                  )}
                 </div>
+                <div className="rounded-2xl border border-teal-500/20 bg-zinc-950/50 px-5 py-4 text-center">
+                  <div className="text-sm text-zinc-500">عدد الورود</div>
+                  <div className="mt-1 text-4xl font-bold tabular-nums text-zinc-50">
+                    {toArabicNumber(insight.occurrenceCount)}
+                  </div>
+                </div>
+              </div>
+
+              <p className="mt-7 text-lg leading-9 text-zinc-300">{insight.description}</p>
+
+              <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <Metric label="آيات" value={insight.verseCount} />
+                <Metric label="أوائل السور" value={insight.positionalPatterns.openingVerses} />
+                <Metric label="أواخر السور" value={insight.positionalPatterns.closingVerses} />
+                <Metric label="فاتحة السورة" value={insight.positionalPatterns.firstAyah} />
               </div>
             </div>
 
-            {/* Verified example verses */}
-            <div className="border-t border-zinc-800/50">
-              <button
-                onClick={() => setOpenExamples(toggle(openExamples, d.id))}
-                className="w-full px-6 py-3 flex items-center justify-between text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <FlaskConical className="w-3.5 h-3.5 text-teal-600" />
-                  <span>آيات مختبرة من النتائج الفعلية</span>
-                  <span className="text-xs text-zinc-600">({d.exampleVerses.length} آيات)</span>
-                </div>
-                {openExamples.has(d.id)
-                  ? <ChevronUp className="w-4 h-4" />
-                  : <ChevronDown className="w-4 h-4" />}
-              </button>
+            <div className="rounded-3xl border border-zinc-800 bg-zinc-900/45 p-6">
+              <div className="mb-5 flex items-center justify-between gap-3">
+                <h2 className="text-xl font-bold text-zinc-100">توزيع السور</h2>
+                <span className="rounded-full bg-zinc-800 px-3 py-1 text-xs text-zinc-400">
+                  أعلى {toArabicNumber(insight.surahDistribution.length)}
+                </span>
+              </div>
 
-              {openExamples.has(d.id) && (
-                <div className="px-6 pb-5 space-y-3">
-                  {d.exampleVerses.map((v, i) => (
-                    <div key={i} className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/60">
-                      <p className="text-xs text-zinc-500 mb-2">
-                        سورة {v.sura} • آية {v.aya}
-                      </p>
-                      <p className="font-amiri text-xl leading-loose text-zinc-200">{v.text}</p>
+              <div className="space-y-4">
+                {insight.surahDistribution.map((item) => (
+                  <div key={item.surahId} className="space-y-2">
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                      <span className="font-medium text-zinc-200">سورة {item.surahName}</span>
+                      <span className="tabular-nums text-teal-300">{toArabicNumber(item.count)}</span>
                     </div>
-                  ))}
-                </div>
-              )}
+                    <div className="h-3 overflow-hidden rounded-full bg-zinc-800">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-l from-teal-300 to-teal-600"
+                        style={{ width: `${Math.max(8, (item.count / maxSurahCount) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        ))}
+
+          <div className="grid gap-5 xl:grid-cols-[0.85fr_1.15fr]">
+            <div className="rounded-3xl border border-zinc-800 bg-zinc-900/45 p-6">
+              <h2 className="mb-5 text-xl font-bold text-zinc-100">الجذور المتجاورة</h2>
+              <div className="flex flex-wrap gap-2">
+                {insight.topCoOccurringRoots.map((item) => (
+                  <button
+                    key={item.root}
+                    onClick={() => {
+                      setRootInput(item.label);
+                      loadInsight(item.root);
+                    }}
+                    className="group rounded-full border border-zinc-700 bg-zinc-950/70 px-4 py-2 transition-all hover:border-teal-400/70 hover:bg-teal-500/10"
+                  >
+                    <span className="font-amiri text-xl text-zinc-100 group-hover:text-teal-200">
+                      {item.label}
+                    </span>
+                    <span className="mr-2 text-xs tabular-nums text-zinc-500 group-hover:text-teal-300">
+                      {toArabicNumber(item.count)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-zinc-800 bg-zinc-900/45 p-6">
+              <h2 className="mb-5 text-xl font-bold text-zinc-100">آيات عينة</h2>
+              <div className="space-y-4">
+                {insight.sampleVerses.map((verse) => (
+                  <article
+                    key={verse.gid}
+                    className="rounded-2xl border border-zinc-800 bg-zinc-950/45 p-5 transition-colors hover:border-teal-500/20"
+                  >
+                    <div className="mb-3 text-sm text-teal-300">
+                      سورة {verse.surahName} · آية {verse.ayahDisplay}
+                    </div>
+                    <p className="font-amiri text-2xl leading-[2.1] text-zinc-100 md:text-3xl">
+                      {verse.text}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-950/45 p-4">
+      <div className="text-xs text-zinc-500">{label}</div>
+      <div className="mt-2 text-2xl font-bold tabular-nums text-zinc-100">
+        {toArabicNumber(value)}
       </div>
     </div>
   );
