@@ -75,11 +75,11 @@ function buildInsight(stats: RootStats) {
     rootLabel: formatRoot(stats.root),
     occurrenceCount: stats.occurrenceCount,
     verseCount: stats.verseCount,
-    topCoOccurringRoots: stats.coOccurringRoots.slice(0, 8).map((item) => ({
+    topCoOccurringRoots: stats.coOccurringRoots.slice(0, 12).map((item) => ({
       ...item,
       label: formatRoot(item.root),
     })),
-    surahDistribution: stats.surahDistribution.slice(0, 5),
+    surahDistribution: stats.surahDistribution,
     positionalPatterns: stats.positionalPatterns,
     sampleVerses: stats.sampleVerses.slice(0, 4),
     description: buildDescription(stats),
